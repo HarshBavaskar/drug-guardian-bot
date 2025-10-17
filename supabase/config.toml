@@ -1,0 +1,4 @@
+project_id = "tszbblypvpgtjcmzkqud"
+
+[functions.predict-side-effects]
+verify_jwt = false
