@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Shield, AlertCircle } from "lucide-react";
+import Hero from "@/components/Hero";
 import DrugSelector from "@/components/DrugSelector";
 import PredictionResults from "@/components/PredictionResults";
+import SearchHistory from "@/components/SearchHistory";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +12,28 @@ const Index = () => {
   const [selectedDrugs, setSelectedDrugs] = useState<string[]>([]);
   const [prediction, setPrediction] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<Array<{ drugs: string[]; timestamp: string; id: string }>>([]);
   const { toast } = useToast();
+
+  // Load search history from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('drugSearchHistory');
+    if (saved) {
+      setSearchHistory(JSON.parse(saved));
+    }
+  }, []);
+
+  // Save to history
+  const saveToHistory = (drugs: string[]) => {
+    const newEntry = {
+      drugs,
+      timestamp: new Date().toISOString(),
+      id: Date.now().toString()
+    };
+    const updated = [newEntry, ...searchHistory].slice(0, 10);
+    setSearchHistory(updated);
+    localStorage.setItem('drugSearchHistory', JSON.stringify(updated));
+  };
 
   const handleAnalyze = async () => {
     if (selectedDrugs.length < 2) {
@@ -39,6 +62,7 @@ const Index = () => {
       }
 
       setPrediction(data.prediction);
+      saveToHistory(selectedDrugs);
       
       toast({
         title: "Analysis complete",
@@ -61,10 +85,28 @@ const Index = () => {
     setPrediction(null);
   };
 
+  const handleHistorySelect = (drugs: string[]) => {
+    setSelectedDrugs(drugs);
+    setPrediction(null);
+    toast({
+      title: "History loaded",
+      description: `Selected ${drugs.length} drugs from history`,
+    });
+  };
+
+  const handleClearHistory = () => {
+    setSearchHistory([]);
+    localStorage.removeItem('drugSearchHistory');
+    toast({
+      title: "History cleared",
+      description: "Search history has been removed",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card shadow-card">
+      <header className="border-b border-border bg-card shadow-card sticky top-0 z-50 backdrop-blur-sm bg-card/80">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-primary">
@@ -77,6 +119,9 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      {/* Hero Section */}
+      <Hero />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -92,6 +137,13 @@ const Index = () => {
               </p>
             </div>
           </div>
+
+          {/* Search History */}
+          <SearchHistory
+            history={searchHistory}
+            onSelect={handleHistorySelect}
+            onClear={handleClearHistory}
+          />
 
           {/* Drug Selection */}
           <DrugSelector 
