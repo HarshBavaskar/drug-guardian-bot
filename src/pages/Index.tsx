@@ -113,8 +113,9 @@ const Index = () => {
               <Shield className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">DrugGuardian</h1>
+              <h1 className="text-2xl font-bold text-foreground">PrismRX</h1>
               <p className="text-sm text-muted-foreground">AI-Powered Polypharmacy Safety Analyzer</p>
+              <p className="text-sm text-muted-foreground">Made by Harsh and Dhruvi</p>
             </div>
           </div>
         </div>
