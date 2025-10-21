@@ -1,9 +1,10 @@
-import { AlertTriangle, CheckCircle, Download, Info, XCircle } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle, Download, Info, XCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import RiskMeter from "./RiskMeter";
 import InteractionTimeline from "./InteractionTimeline";
+import KeyInsights from "./KeyInsights";
 
 interface PredictionResultsProps {
   prediction: string;
@@ -111,25 +112,64 @@ const PredictionResults = ({ prediction, drugs }: PredictionResultsProps) => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Drug List */}
-          <div className="flex flex-wrap gap-2 pb-4 border-b border-border">
-            {drugs.map((drug) => (
-              <Badge key={drug} variant="secondary" className="text-sm">
-                {drug}
-              </Badge>
+          {/* Drug List - Enhanced Visual Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-6">
+            {drugs.map((drug, index) => (
+              <div 
+                key={drug} 
+                className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-4 border border-primary/20 animate-scale-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground">{drug}</p>
+                    <p className="text-xs text-muted-foreground">Drug {index + 1}</p>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
           {/* Risk Meter */}
           <RiskMeter level={severityInfo.level as "low" | "medium" | "high"} />
 
-          {/* Prediction Content */}
-          <div className="prose prose-sm max-w-none">
-            <div className="bg-muted/50 rounded-lg p-4">
-              <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-                {prediction}
-              </div>
-            </div>
+          {/* Prediction Content - Enhanced Formatting */}
+          <div className="space-y-4">
+            {prediction.split('\n\n').map((section, index) => {
+              const isHeading = section.includes(':') && section.split(':')[0].length < 50;
+              const isBulletPoint = section.trim().startsWith('-') || section.trim().startsWith('•');
+              
+              if (isHeading) {
+                const [heading, ...content] = section.split(':');
+                return (
+                  <div key={index} className="bg-gradient-to-r from-primary/5 to-transparent rounded-lg p-4 border-l-4 border-primary animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                    <h3 className="font-bold text-lg text-primary mb-2 flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5" />
+                      {heading.trim()}
+                    </h3>
+                    <p className="text-foreground leading-relaxed">{content.join(':').trim()}</p>
+                  </div>
+                );
+              }
+              
+              if (isBulletPoint) {
+                return (
+                  <div key={index} className="bg-card rounded-lg p-3 border border-border flex items-start gap-3 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                    <CheckCircle className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
+                    <p className="text-foreground leading-relaxed">{section.replace(/^[-•]\s*/, '')}</p>
+                  </div>
+                );
+              }
+              
+              return (
+                <div key={index} className="bg-muted/30 rounded-lg p-4 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                  <p className="text-foreground leading-relaxed">{section}</p>
+                </div>
+              );
+            })}
           </div>
 
           {/* Disclaimer */}
@@ -143,6 +183,9 @@ const PredictionResults = ({ prediction, drugs }: PredictionResultsProps) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Key Insights */}
+      <KeyInsights severity={severityInfo.level} />
 
       {/* Interaction Timeline */}
       <InteractionTimeline items={timelineItems} />
