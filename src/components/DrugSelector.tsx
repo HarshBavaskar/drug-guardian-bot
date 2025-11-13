@@ -56,9 +56,12 @@ const DrugSelector = ({ selectedDrugs, onDrugsChange }: DrugSelectorProps) => {
   };
 
   return (
-    <Card className="shadow-card">
+    <Card className="shadow-medical hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 animate-fade-in">
       <CardHeader>
-        <CardTitle>Drug Selection</CardTitle>
+        <CardTitle className="flex items-center gap-2 group">
+          <span className="group-hover:text-primary transition-colors duration-300">Drug Selection</span>
+          <span className="text-primary animate-pulse">•</span>
+        </CardTitle>
         <CardDescription>
           Enter or select drugs to analyze for potential interactions and side effects
         </CardDescription>
@@ -72,12 +75,13 @@ const DrugSelector = ({ selectedDrugs, onDrugsChange }: DrugSelectorProps) => {
               value={inputValue}
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="flex-1"
+              className="flex-1 hover:border-primary/50 transition-all duration-300 focus:shadow-lg focus:shadow-primary/20"
             />
             <Button
               onClick={() => addDrug(inputValue)}
               disabled={!inputValue.trim()}
               size="icon"
+              className="hover:scale-110 transition-transform duration-300 hover:shadow-lg hover:shadow-primary/50"
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -85,11 +89,12 @@ const DrugSelector = ({ selectedDrugs, onDrugsChange }: DrugSelectorProps) => {
 
           {/* Suggestions Dropdown */}
           {suggestions.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden">
-              {suggestions.map((drug) => (
+            <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden animate-scale-in">
+              {suggestions.map((drug, index) => (
                 <button
                   key={drug}
-                  className="w-full px-4 py-2 text-left hover:bg-accent transition-colors"
+                  className="w-full px-4 py-2 text-left hover:bg-primary/10 hover:text-primary transition-all duration-200 animate-fade-in"
+                  style={{ animationDelay: `${index * 30}ms` }}
                   onClick={() => addDrug(drug)}
                 >
                   {drug}
@@ -101,21 +106,22 @@ const DrugSelector = ({ selectedDrugs, onDrugsChange }: DrugSelectorProps) => {
 
         {/* Selected Drugs */}
         {selectedDrugs.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in">
             <p className="text-sm font-medium text-foreground">
               Selected Drugs ({selectedDrugs.length})
             </p>
             <div className="flex flex-wrap gap-2">
-              {selectedDrugs.map((drug) => (
+              {selectedDrugs.map((drug, index) => (
                 <Badge
                   key={drug}
                   variant="secondary"
-                  className="pl-3 pr-1 py-1.5 text-sm flex items-center gap-1"
+                  className="pl-3 pr-1 py-1.5 text-sm flex items-center gap-1 hover:bg-primary/20 hover:border-primary/50 transition-all duration-300 hover:scale-105 cursor-default animate-scale-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {drug}
                   <button
                     onClick={() => removeDrug(drug)}
-                    className="ml-1 p-0.5 hover:bg-secondary-foreground/20 rounded-full transition-colors"
+                    className="ml-1 p-0.5 hover:bg-destructive hover:text-destructive-foreground rounded-full transition-all duration-200 hover:scale-125"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -133,11 +139,12 @@ const DrugSelector = ({ selectedDrugs, onDrugsChange }: DrugSelectorProps) => {
           <div className="flex flex-wrap gap-2">
             {COMMON_DRUGS.filter(drug => !selectedDrugs.includes(drug))
               .slice(0, 8)
-              .map((drug) => (
+              .map((drug, index) => (
                 <Badge
                   key={drug}
                   variant="outline"
-                  className="cursor-pointer hover:bg-accent transition-colors"
+                  className="cursor-pointer hover:bg-primary/20 hover:border-primary transition-all duration-300 hover:scale-110 animate-fade-in"
+                  style={{ animationDelay: `${index * 40}ms` }}
                   onClick={() => addDrug(drug)}
                 >
                   <Plus className="w-3 h-3 mr-1" />
