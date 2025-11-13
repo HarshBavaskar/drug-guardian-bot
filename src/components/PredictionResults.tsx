@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import RiskMeter from "./RiskMeter";
 import InteractionTimeline from "./InteractionTimeline";
 import KeyInsights from "./KeyInsights";
+import EvaluationMetrics from "./EvaluationMetrics";
 
 interface PredictionResultsProps {
   prediction: string;
@@ -186,6 +187,9 @@ const PredictionResults = ({ prediction, drugs }: PredictionResultsProps) => {
 
       {/* Key Insights */}
       <KeyInsights severity={severityInfo.level} />
+
+      {/* Evaluation Metrics */}
+      <EvaluationMetrics severity={severityInfo.level} drugsCount={drugs.length} />
 
       {/* Interaction Timeline */}
       <InteractionTimeline items={timelineItems} />
