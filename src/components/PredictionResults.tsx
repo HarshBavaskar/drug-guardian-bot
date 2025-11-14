@@ -139,38 +139,62 @@ const PredictionResults = ({ prediction, drugs }: PredictionResultsProps) => {
 
           {/* Prediction Content - Enhanced Formatting */}
           <div className="space-y-4">
-            {prediction.split('\n\n').map((section, index) => {
-              const isHeading = section.includes(':') && section.split(':')[0].length < 50;
-              const isBulletPoint = section.trim().startsWith('-') || section.trim().startsWith('•');
+            {prediction.split('\n').filter(line => line.trim()).map((line, index) => {
+              // Remove markdown formatting
+              const cleanLine = line
+                .replace(/^#{1,6}\s+/, '') // Remove heading markers
+                .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold markers
+                .replace(/\*(.+?)\*/g, '$1') // Remove italic markers
+                .replace(/^[-•*]\s+/, '') // Remove bullet markers
+                .trim();
+              
+              if (!cleanLine) return null;
+              
+              // Detect if line is a heading (ends with : or starts with capitalized words)
+              const isHeading = (cleanLine.includes(':') && cleanLine.split(':')[0].length < 60 && cleanLine.split(':')[0].length > 3) || 
+                                (line.match(/^#{1,6}\s+/) !== null);
+              
+              // Detect bullet points
+              const isBulletPoint = line.trim().match(/^[-•*]\s+/);
               
               if (isHeading) {
-                const [heading, ...content] = section.split(':');
+                const [heading, ...content] = cleanLine.split(':');
+                const headingText = heading.trim();
+                const contentText = content.join(':').trim();
+                
                 return (
-                  <div key={index} className="bg-gradient-to-r from-primary/5 to-transparent rounded-lg p-4 border-l-4 border-primary animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                  <div key={index} className="bg-gradient-to-r from-primary/5 to-transparent rounded-lg p-4 border-l-4 border-primary animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
                     <h3 className="font-bold text-lg text-primary mb-2 flex items-center gap-2">
                       <AlertCircle className="w-5 h-5" />
-                      {heading.trim()}
+                      {headingText}
                     </h3>
-                    <p className="text-foreground leading-relaxed">{content.join(':').trim()}</p>
+                    {contentText && (
+                      <p className="text-foreground leading-relaxed">{contentText}</p>
+                    )}
                   </div>
                 );
               }
               
               if (isBulletPoint) {
                 return (
-                  <div key={index} className="bg-card rounded-lg p-3 border border-border flex items-start gap-3 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                  <div key={index} className="bg-card rounded-lg p-3 border border-border flex items-start gap-3 animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
                     <CheckCircle className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-                    <p className="text-foreground leading-relaxed">{section.replace(/^[-•]\s*/, '')}</p>
+                    <p className="text-foreground leading-relaxed">{cleanLine}</p>
                   </div>
                 );
               }
               
-              return (
-                <div key={index} className="bg-muted/30 rounded-lg p-4 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                  <p className="text-foreground leading-relaxed">{section}</p>
-                </div>
-              );
-            })}
+              // Regular paragraph
+              if (cleanLine.length > 20) {
+                return (
+                  <div key={index} className="bg-muted/30 rounded-lg p-4 animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+                    <p className="text-foreground leading-relaxed">{cleanLine}</p>
+                  </div>
+                );
+              }
+              
+              return null;
+            }).filter(Boolean)}
           </div>
 
           {/* Disclaimer */}
